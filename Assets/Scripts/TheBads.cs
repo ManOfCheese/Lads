@@ -7,25 +7,33 @@ public class TheBads : MonoBehaviour
     #region Variables
     [Header("Self")]
     public int Hunger;
+    [Range(.1f, 10f)]
     public float Speed = 1;
     public States CurrentState;
+    public float WaitingTimer;
+    [Tooltip("Waiting time in seconds that the waiting timer resets to upon reaching 0")] public float WaitingTimerResetValue = 3f;
 
-    public Color WayPointColor;
+    public Color WayPointColor = Color.yellow;
     public List<GameObject> WayPoints;
     public GameObject TargetWayPoint;
+    public float DistanceToWayPoint;
+    [Range(.1f, 10f)]
+    public float WayPointApproachDistance = .1f;
 
     [Header("Target")]
     public Player PlayerTarget;
     public Player GetPlayerTarget()
     {
-        PlayerTarget = FindObjectOfType<Player>();
         if (PlayerTarget == null)
         {
-            Debug.LogError("Did not find player");
+            PlayerTarget = FindObjectOfType<Player>();
+            if (PlayerTarget == null)
+            {
+                Debug.LogError("Did not find player");
+            }
         }
         return PlayerTarget;
     }
-    public float DistanceToWayPoint;
     public float DistanceToPlayer;
     public float ChaseRadius = 1f;
     public float EatRadius = .5f;
@@ -63,7 +71,8 @@ public class TheBads : MonoBehaviour
         FindClosestWayPoint,
         Wander,
         ChaseTarget,
-        EatTarget
+        EatTarget,
+        Wait
     }
 
     public void SetState(States pState)
@@ -116,7 +125,7 @@ public class TheBads : MonoBehaviour
             }
         }
 
-        if (DistanceToWayPoint < .1f)
+        if (DistanceToWayPoint < WayPointApproachDistance)
         {
             TargetWayPoint = GetNextWayPoint();
             return;
@@ -169,7 +178,18 @@ public class TheBads : MonoBehaviour
         // Player fuckin dies (disappears)
         Debug.Log("Eat the rich");
         //lPlayerTarget.KillBottomLad();
-        SetState(States.FindClosestWayPoint);
+        SetState(States.Wait);
+    }
+
+    public void Wait()
+    {
+        WaitingTimer -= Time.deltaTime;
+        if (WaitingTimer <= 0f)
+        {
+            WaitingTimer = WaitingTimerResetValue;
+            SetState(States.FindClosestWayPoint);
+            return;
+        }
     }
     #endregion
 
@@ -221,6 +241,9 @@ public class TheBads : MonoBehaviour
                 break;
             case States.EatTarget:
                 EatTarget();
+                break;
+            case States.Wait:
+                Wait();
                 break;
             default:
                 break;
