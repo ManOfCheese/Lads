@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-	[Header("References")]
+	[Header( "References" )]
+	public GameObject deadLad;
 	public Rigidbody rigidBody;
 	public BoxCollider boxCollider;
 
 	[Header( "Settings" )]
 	public float speed;
+	public float throwSpeed;
 	public float lifeSpan; //in seconds
 
 	[Header( "Data" )]
 	private float currentLifeSpan;
-	private Vector2 direction; //x,z
+	private Vector3 direction;
 	private List<GameObject> ladList = new List<GameObject>();
 
 	// Start is called before the first frame update
@@ -39,21 +41,34 @@ public class Player : MonoBehaviour {
 			Time.timeScale = 0;
 		}
 
-		//Controls
+		//Movmement
 		direction = new Vector2( 0, 0 );
 		if ( Input.GetKey( KeyCode.W ) ) {
-			direction = new Vector2( direction.x, 1 );
+			direction = new Vector3( direction.x, 0, 1 );
 		}
 		if ( Input.GetKey( KeyCode.A ) ) {
-			direction = new Vector2( -1, direction.y );
+			direction = new Vector3( -1, direction.y );
 		}
 		if ( Input.GetKey( KeyCode.S ) ) {
-			direction = new Vector2( direction.x, -1 );
+			direction = new Vector3( direction.x, 0, -1 );
 		}
 		if ( Input.GetKey( KeyCode.D ) ) {
-			direction = new Vector2( 1, direction.y );
+			direction = new Vector3( 1, 0, direction.y );
 		}
-		rigidBody.velocity = new Vector3( direction.x * speed, rigidBody.velocity.y, direction.y * speed );
+		rigidBody.velocity = new Vector3( direction.x * speed, rigidBody.velocity.y, direction.z * speed );
+
+		if ( Input.GetKeyDown( KeyCode.K ) ) {
+			if ( ladList.Count > 0 ) {
+				GameObject ladToKill = ladList[ ladList.Count - 1 ];
+				ladList.Remove( ladToKill );
+				Destroy( ladToKill );
+				boxCollider.size -= new Vector3( 0, 1, 0 );
+				boxCollider.center = new Vector3( 0, 0.5f * ladList.Count, 0 );
+
+				GameObject ladToThrow = Instantiate( deadLad, transform.position + direction + new Vector3(0, 0.5f, 0), Quaternion.identity );
+				ladToThrow.GetComponent<Rigidbody>().velocity = new Vector3( direction.x * throwSpeed, rigidBody.velocity.y, direction.z * throwSpeed );
+			}
+		}
 	}
 
 	private void OnTriggerEnter( Collider other ) {
