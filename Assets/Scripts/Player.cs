@@ -25,6 +25,7 @@ public class Player : MonoBehaviour {
 	void Start() {
 		currentLifeSpan = lifeSpan;
 		highScoreText.text = "Highest Lad Count: " + highScore;
+		Time.timeScale = 1;
 	}
 
 	// Update is called once per frame
