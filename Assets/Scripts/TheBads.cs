@@ -7,24 +7,38 @@ public class TheBads : MonoBehaviour
     #region Variables
     [Header("Self")]
     public int Hunger;
-    public float Speed;
+    public float Speed = 1;
     public States CurrentState;
 
     public Color WayPointColor;
     public List<GameObject> WayPoints;
+    public GameObject TargetWayPoint;
 
     [Header("Target")]
-    public GameObject Target;
-    public float DistanceToTarget;
-    public float ChaseRadius;
+    public Player PlayerTarget;
+    public Player GetPlayerTarget()
+    {
+        PlayerTarget = FindObjectOfType<Player>();
+        if (PlayerTarget == null)
+        {
+            Debug.LogError("Did not find player");
+        }
+        return PlayerTarget;
+    }
+    public float DistanceToWayPoint;
+    public float DistanceToPlayer;
+    public float ChaseRadius = 1f;
+    public float EatRadius = .5f;
     public float TargetDistance;
     #endregion
 
     #region Debug
     private void OnDrawGizmos()
     {
-        UnityEditor.Handles.color = Color.red;
+        UnityEditor.Handles.color = Color.blue;
         UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.up, ChaseRadius);
+        UnityEditor.Handles.color = Color.red;
+        UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.up, EatRadius);
 
         // Draw lines between waypoints
         if (WayPoints == null || WayPoints.Count <= 1) return;
@@ -75,41 +89,87 @@ public class TheBads : MonoBehaviour
                 }
             }
         }
-        Target = newWayPointTarget;
+        TargetWayPoint = newWayPointTarget;
         SetState(States.Wander);
     }
 
     public void Wander()
     {
-        if (Target == null)
+        if (TargetWayPoint == null)
         {
             Debug.Log("No waypoint target. Finding new one");
             SetState(States.FindClosestWayPoint);
             return;
         }
-        DistanceToTarget = Vector3.Distance(transform.position, Target.transform.position);
-        if (DistanceToTarget < .1f)
+        DistanceToWayPoint = Vector3.Distance(transform.position, TargetWayPoint.transform.position);
+
+
+        Player lPlayerTarget = GetPlayerTarget();
+        if (lPlayerTarget != null)
         {
-            Target = GetNextWayPoint();
+            DistanceToPlayer = Vector3.Distance(transform.position, lPlayerTarget.transform.position);
+            if (DistanceToPlayer < ChaseRadius)
+            {
+                PlayerTarget = lPlayerTarget;
+                SetState(States.ChaseTarget);
+                return;
+            }
+        }
+
+        if (DistanceToWayPoint < .1f)
+        {
+            TargetWayPoint = GetNextWayPoint();
             return;
         }
         Debug.Log("Wander");
-        transform.LookAt(Target.transform);
+        transform.LookAt(TargetWayPoint.transform);
         transform.position += transform.forward * Speed * Time.deltaTime;
     }
 
     public void ChaseTarget()
     {
-        // Only chases within a certain radius
+        Player lPlayerTarget = GetPlayerTarget();
+        if (lPlayerTarget == null)
+        {
+            SetState(States.FindClosestWayPoint);
+            return;
+        }
+        DistanceToPlayer = Vector3.Distance(transform.position, lPlayerTarget.transform.position);
+        if (DistanceToPlayer > ChaseRadius)
+        {
+            Debug.Log("Player out of range. Finding closest waypoint");
+            SetState(States.FindClosestWayPoint);
+            return;
+        }
+        if (DistanceToPlayer < EatRadius)
+        {
+            Debug.Log("Eat player");
+            SetState(States.EatTarget);
+            return;
+        }
+        Debug.Log("Following player");
+        transform.LookAt(PlayerTarget.transform);
+        transform.position += transform.forward * Speed * Time.deltaTime;
+
         // Hunger affects speed while chasing
         // Hunger up == Speed up
-        
+
     }
 
     public void EatTarget()
     {
-        // Hunger -=1
+        Hunger -= 1;
+        Player lPlayerTarget = GetPlayerTarget();
+        if (lPlayerTarget == null)
+        {
+            Debug.LogWarning("Player target is null during eat target state");
+            SetState(States.FindClosestWayPoint);
+            return;
+        }
         // Player fuckin dies (disappears)
+        Debug.Log("Eat the rich");
+        lPlayerTarget.gameObject.SetActive(false);
+        SetState(States.FindClosestWayPoint);
     }
     #endregion
 
@@ -120,7 +180,7 @@ public class TheBads : MonoBehaviour
         GameObject NextWayPoint;
         for (int i = 0; i < WayPoints.Count; i++)
         {
-            if (WayPoints[i] == Target)
+            if (WayPoints[i] == TargetWayPoint)
             {
                 CurrentWayPoint = WayPoints[i];
                 if (i + 1 >= WayPoints.Count)
