@@ -77,6 +77,10 @@ public class Player : MonoBehaviour {
 		ladToThrow.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 	}
 
+	public void Win() {
+		highScoreText.text = "You Win | Final Score: " + highScore;
+	}
+
 	private void OnTriggerEnter( Collider other ) {
 		if ( other.gameObject.tag == "Lad" ) {
 			ladList.Add( other.gameObject );
@@ -94,9 +98,6 @@ public class Player : MonoBehaviour {
 				highScore = ladList.Count;
 				highScoreText.text = "Highest Lad Count: " + highScore;
 			}
-		}
-		if ( other.gameObject.tag == "Finish" ) {
-			highScoreText.text = "You Win | Final Score: " + highScore;
 		}
 	}
 }
