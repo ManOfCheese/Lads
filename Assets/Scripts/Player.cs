@@ -38,6 +38,7 @@ public class Player : MonoBehaviour {
 		}
 		else if ( currentLifeSpan <= 0 && ladList.Count <= 0 ) {
 			Time.timeScale = 0;
+			highScoreText.text = "You Died | Final Score: " + highScore;
 		}
 
 		//Movmement
@@ -66,7 +67,7 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	private void KillBottomLad() {
+	public void KillBottomLad() {
 		GameObject ladToKill = ladList[ ladList.Count - 1 ];
 		ladList.Remove( ladToKill );
 		Destroy( ladToKill );
@@ -82,6 +83,7 @@ public class Player : MonoBehaviour {
 			ladRigidBody.isKinematic = true;
 			ladRigidBody.useGravity = false;
 			other.gameObject.GetComponent<BoxCollider>().enabled = false;
+			other.gameObject.GetComponent<Lad>().OnPickUp();
 			boxCollider.size += new Vector3( 0, 1, 0 );
 			boxCollider.center = new Vector3( 0, 0.5f * ladList.Count, 0 );
 			other.gameObject.transform.parent = this.transform;
@@ -91,9 +93,6 @@ public class Player : MonoBehaviour {
 				highScore = ladList.Count;
 				highScoreText.text = "Highest Lad Count: " + highScore;
 			}
-		}
-		if ( other.gameObject.GetComponent<TheBads>() ) {
-			KillBottomLad();
 		}
 	}
 }
