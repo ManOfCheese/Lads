@@ -74,6 +74,11 @@ public class Player : MonoBehaviour {
 
 		GameObject ladToThrow = Instantiate( deadLad, transform.position + direction + new Vector3( 0, 0.5f, 0 ), Quaternion.identity );
 		ladToThrow.GetComponent<Rigidbody>().velocity = new Vector3( direction.x * throwSpeed, rigidBody.velocity.y, direction.z * throwSpeed );
+		ladToThrow.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+	}
+
+	public void Win() {
+		highScoreText.text = "You Win | Final Score: " + highScore;
 	}
 
 	private void OnTriggerEnter( Collider other ) {
@@ -93,9 +98,6 @@ public class Player : MonoBehaviour {
 				highScore = ladList.Count;
 				highScoreText.text = "Highest Lad Count: " + highScore;
 			}
-		}
-		if ( other.gameObject.tag == "Finish" ) {
-			highScoreText.text = "You Win | Final Score: " + highScore;
 		}
 	}
 }
