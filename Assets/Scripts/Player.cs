@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
 	[Header( "References" )]
 	public GameObject deadLad;
 	public Rigidbody rigidBody;
 	public BoxCollider boxCollider;
+	public Text highScoreText;
 
 	[Header( "Settings" )]
 	public float speed;
@@ -17,10 +19,12 @@ public class Player : MonoBehaviour {
 	private float currentLifeSpan;
 	private Vector3 direction;
 	private List<GameObject> ladList = new List<GameObject>();
+	private int highScore = 0;
 
 	// Start is called before the first frame update
 	void Start() {
 		currentLifeSpan = lifeSpan;
+		highScoreText.text = "Highest Lad Count: " + highScore;
 	}
 
 	// Update is called once per frame
@@ -28,13 +32,8 @@ public class Player : MonoBehaviour {
 		//Lifespan
 		currentLifeSpan -= Time.deltaTime;
 		if ( currentLifeSpan <= 0 && ladList.Count > 0 ) {
-			GameObject ladToKill = ladList[ ladList.Count - 1 ];
-			ladList.Remove( ladToKill );
-			Destroy( ladToKill );
-			boxCollider.size -= new Vector3( 0, 1, 0 );
-			boxCollider.center = new Vector3( 0, 0.5f * ladList.Count, 0 );
+			KillBottomLad();
 
-			rigidBody.position += new Vector3( 0, 1, 0 );
 			currentLifeSpan = lifeSpan;
 		}
 		else if ( currentLifeSpan <= 0 && ladList.Count <= 0 ) {
@@ -59,16 +58,21 @@ public class Player : MonoBehaviour {
 
 		if ( Input.GetKeyDown( KeyCode.K ) ) {
 			if ( ladList.Count > 0 ) {
-				GameObject ladToKill = ladList[ ladList.Count - 1 ];
-				ladList.Remove( ladToKill );
-				Destroy( ladToKill );
-				boxCollider.size -= new Vector3( 0, 1, 0 );
-				boxCollider.center = new Vector3( 0, 0.5f * ladList.Count, 0 );
+				KillBottomLad();
 
 				GameObject ladToThrow = Instantiate( deadLad, transform.position + direction + new Vector3(0, 0.5f, 0), Quaternion.identity );
 				ladToThrow.GetComponent<Rigidbody>().velocity = new Vector3( direction.x * throwSpeed, rigidBody.velocity.y, direction.z * throwSpeed );
 			}
 		}
+	}
+
+	private void KillBottomLad() {
+		GameObject ladToKill = ladList[ ladList.Count - 1 ];
+		ladList.Remove( ladToKill );
+		Destroy( ladToKill );
+		boxCollider.size -= new Vector3( 0, 1, 0 );
+		boxCollider.center = new Vector3( 0, 0.5f * ladList.Count, 0 );
+		rigidBody.position += new Vector3( 0, 1, 0 );
 	}
 
 	private void OnTriggerEnter( Collider other ) {
@@ -82,6 +86,14 @@ public class Player : MonoBehaviour {
 			boxCollider.center = new Vector3( 0, 0.5f * ladList.Count, 0 );
 			other.gameObject.transform.parent = this.transform;
 			other.gameObject.transform.localPosition = new Vector3( 0, ladList.Count, 0 );
+
+			if ( ladList.Count > highScore ) {
+				highScore = ladList.Count;
+				highScoreText.text = "Highest Lad Count: " + highScore;
+			}
+		}
+		if ( other.gameObject.GetComponent<TheBads>() ) {
+			KillBottomLad();
 		}
 	}
 }
