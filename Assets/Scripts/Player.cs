@@ -94,5 +94,8 @@ public class Player : MonoBehaviour {
 				highScoreText.text = "Highest Lad Count: " + highScore;
 			}
 		}
+		if ( other.gameObject.tag == "Finish" ) {
+			highScoreText.text = "You Win | Final Score: " + highScore;
+		}
 	}
 }
