@@ -168,7 +168,7 @@ public class TheBads : MonoBehaviour
         }
         // Player fuckin dies (disappears)
         Debug.Log("Eat the rich");
-        lPlayerTarget.gameObject.SetActive(false);
+        //lPlayerTarget.KillBottomLad();
         SetState(States.FindClosestWayPoint);
     }
     #endregion
