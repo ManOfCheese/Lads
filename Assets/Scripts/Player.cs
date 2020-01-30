@@ -74,6 +74,7 @@ public class Player : MonoBehaviour {
 
 		GameObject ladToThrow = Instantiate( deadLad, transform.position + direction + new Vector3( 0, 0.5f, 0 ), Quaternion.identity );
 		ladToThrow.GetComponent<Rigidbody>().velocity = new Vector3( direction.x * throwSpeed, rigidBody.velocity.y, direction.z * throwSpeed );
+		ladToThrow.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 	}
 
 	private void OnTriggerEnter( Collider other ) {
