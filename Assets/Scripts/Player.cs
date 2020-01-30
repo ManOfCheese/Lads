@@ -60,9 +60,6 @@ public class Player : MonoBehaviour {
 		if ( Input.GetKeyDown( KeyCode.K ) ) {
 			if ( ladList.Count > 0 ) {
 				KillBottomLad();
-
-				GameObject ladToThrow = Instantiate( deadLad, transform.position + direction + new Vector3(0, 0.5f, 0), Quaternion.identity );
-				ladToThrow.GetComponent<Rigidbody>().velocity = new Vector3( direction.x * throwSpeed, rigidBody.velocity.y, direction.z * throwSpeed );
 			}
 		}
 	}
@@ -74,6 +71,9 @@ public class Player : MonoBehaviour {
 		boxCollider.size -= new Vector3( 0, 1, 0 );
 		boxCollider.center = new Vector3( 0, 0.5f * ladList.Count, 0 );
 		rigidBody.position += new Vector3( 0, 1, 0 );
+
+		GameObject ladToThrow = Instantiate( deadLad, transform.position + direction + new Vector3( 0, 0.5f, 0 ), Quaternion.identity );
+		ladToThrow.GetComponent<Rigidbody>().velocity = new Vector3( direction.x * throwSpeed, rigidBody.velocity.y, direction.z * throwSpeed );
 	}
 
 	private void OnTriggerEnter( Collider other ) {
