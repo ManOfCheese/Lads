@@ -5,6 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class SceneManagerBob : MonoBehaviour
 {
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CycleScenes();
+        }
+    }
+
     public void NextScene()
     {
         if (SceneManager.GetActiveScene().buildIndex == SceneManager.sceneCount)

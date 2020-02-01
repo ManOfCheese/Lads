@@ -56,8 +56,8 @@ public class Player : MonoBehaviour {
 			direction = new Vector3( 1, 0, direction.y );
 		}
 		rigidBody.velocity = new Vector3( direction.x * speed, rigidBody.velocity.y, direction.z * speed );
-
-		if ( Input.GetKeyDown( KeyCode.K ) ) {
+       
+        if ( Input.GetKeyDown( KeyCode.K ) ) {
 			if ( ladList.Count > 0 ) {
 				KillBottomLad();
 			}

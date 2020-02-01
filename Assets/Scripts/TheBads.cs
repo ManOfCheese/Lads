@@ -40,7 +40,8 @@ public class TheBads : MonoBehaviour
     public float TargetDistance;
     #endregion
 
-    #region Debug
+#region Debug
+#if UNITY_ENGINE
     private void OnDrawGizmos()
     {
         UnityEditor.Handles.color = Color.blue;
@@ -62,10 +63,11 @@ public class TheBads : MonoBehaviour
             Gizmos.DrawLine(CurrentWayPoint.transform.position, NextWayPoint.transform.position);
         }
     }
-    #endregion
+#endif
+#endregion
 
-    #region States
-    #region State Setup
+#region States
+#region State Setup
     public enum States
     {
         FindClosestWayPoint,
@@ -79,7 +81,7 @@ public class TheBads : MonoBehaviour
     {
         CurrentState = pState;
     }
-    #endregion
+#endregion
 
     public void FindClosestWayPoint()
     {
@@ -177,7 +179,8 @@ public class TheBads : MonoBehaviour
         }
         // Player fuckin dies (disappears)
         Debug.Log("Eat the rich");
-        //lPlayerTarget.KillBottomLad();
+        lPlayerTarget.KillBottomLad();
+        WaitingTimer = WaitingTimerResetValue;
         SetState(States.Wait);
     }
 
@@ -191,9 +194,9 @@ public class TheBads : MonoBehaviour
             return;
         }
     }
-    #endregion
+#endregion
 
-    #region Functions
+#region Functions
     GameObject GetNextWayPoint()
     {
         GameObject CurrentWayPoint;
@@ -212,10 +215,10 @@ public class TheBads : MonoBehaviour
         }
         return null; 
     }
-    #endregion
+#endregion
 
 
-    #region Unity Functions
+#region Unity Functions
     private void Awake()
     {
         SetState(States.FindClosestWayPoint);
@@ -249,5 +252,5 @@ public class TheBads : MonoBehaviour
                 break;
         }
     }
-    #endregion
+#endregion
 }
